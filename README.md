@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LLM Evaluation Platform
 
-## Getting Started
+A comprehensive platform for evaluating and comparing different Large Language Models (LLMs) in real-time. Test prompts across multiple models, analyze performance metrics, and make data-driven decisions about which LLM best suits your needs.
 
-First, run the development server:
+## Screenshots
 
+### Dashboard Overview
+![Dashboard Overview](./screenshots/Dashboard.jpeg)
+*Real-time comparison of LLM performances and metrics visualization*
+
+### Experiment Interface
+![Experiment Interface](./screenshots/Evaluation.jpeg)
+*Interactive prompt testing and result analysis interface*
+
+# 🛠️ Tech Stack
+
+- **Frontend**: [Next.js 14](https://nextjs.org/) + [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
+- **UI**: [Shadcn/UI](https://ui.shadcn.com/) + [Tailwind CSS](https://tailwindcss.com/)
+- **Data Viz**: [Recharts](https://recharts.org/)
+- **State**: [Zustand](https://github.com/pmndrs/zustand)
+- **Database**: [Prisma](https://www.prisma.io/) + [PostgreSQL](https://www.postgresql.org/)
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js >= v18.0.0
+- npm >= v8.0.0
+- PostgreSQL
+
+### 🔧 Installation
+
+1. **Clone the repo**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/pc9350/LLM-Evaluation-platform
+cd llm-evaluation-platform
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Install dependencies**
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Set up environment**
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. **Configure your `.env`**
+```bash
+DATABASE_URL="postgresql://..."
+OPENAI_API_KEY="..."
+GROQ_API_KEY="..."
+```
 
-## Learn More
+5. **Run migrations**
+```bash
+npx prisma migrate dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+6. **Start developing**
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Visit `http://localhost:3000` - happy evaluating! 🎉
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## 🎯 Usage
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Navigate to the platform
+2. Enter your prompt
+3. Hit "Submit" to test across all models
+4. Watch real-time results roll in
+5. Explore the analytics dashboard
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🤝 Contributing
+
+We love contributions! Here's how you can help:
+
+1. Fork it
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## 🙏 Acknowledgments
+
+Built with amazing open-source tools:
+- [Next.js](https://nextjs.org/)
+- [Shadcn/UI](https://ui.shadcn.com/)
+- [Recharts](https://recharts.org/)
+- [Prisma](https://www.prisma.io/)
+- [Zustand](https://github.com/pmndrs/zustand)
+
+## 📫 Contact
+
+Pranav Chhabra - [chhabrapranav2001@gmail.com](mailto:chhabrapranav2001@gmail.com)
+
+Project Link: [https://github.com/pc9350/LLM-Evaluation-platform](https://github.com/pc9350/LLM-Evaluation-platform)
+
+---
+
+<p align="center">Made with ❤️ for the AI community</p>

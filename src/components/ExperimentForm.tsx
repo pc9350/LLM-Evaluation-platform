@@ -4,20 +4,21 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { ExperimentResult, useExperimentStore } from '@/store/experimentStore';
+import Link from 'next/link';
 
 const MODELS = ["gpt-4", "llama-70b", "mixtral"];
 
 export function ExperimentForm() {
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<Record<string, any>>({});
+  const { results, setResults } = useExperimentStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setResults({}); // Clear previous results
-
-    // Create a request for each model
+    setResults({});  // Clear previous results
+  
     const requests = MODELS.map(async (model) => {
       try {
         const response = await fetch("/api/evaluate", {
@@ -25,27 +26,64 @@ export function ExperimentForm() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt, model }),
         });
-
+  
         const data = await response.json();
-        setResults((prev) => ({
+        setResults((prev: Record<string, ExperimentResult>) => ({
           ...prev,
-          [model]: data,
+          [model]: {
+            response: data.response,
+            responseTime: data.responseTime,
+            metrics: {
+              tokenCount: data.metrics?.tokenCount || 0,
+              promptTokens: data.metrics?.promptTokens || 0,
+              completionTokens: data.metrics?.completionTokens || 0,
+              cost: data.metrics?.cost || 0,
+            }
+          },
         }));
       } catch (error) {
-        console.error(`Error with ${model}:`, error);
-        setResults((prev) => ({
+        setResults((prev: Record<string, ExperimentResult>) => ({
           ...prev,
-          [model]: { error: "Failed to get response" },
+          [model]: {
+            response: "Error occurred",
+            responseTime: 0,
+            metrics: {
+              tokenCount: 0,
+              promptTokens: 0,
+              completionTokens: 0,
+              cost: 0,
+            },
+            error: "Failed to get response"
+          },
         }));
       }
     });
-
+  
     await Promise.all(requests);
     setIsLoading(false);
   };
 
+  // const prepareChartData = () => {
+  //   return MODELS.map(model => ({
+  //     name: model,
+  //     responseTime: results[model]?.responseTime || 0,
+  //     tokenCount: results[model]?.metrics?.tokenCount || 0,
+  //     promptTokens: results[model]?.metrics?.promptTokens || 0,
+  //     completionTokens: results[model]?.metrics?.completionTokens || 0,
+  //     cost: results[model]?.metrics?.cost || 0,
+  //   }));
+  // };
+
   return (
     <div className="container mx-auto p-6">
+      <div className="flex justify-end mb-4">
+        <Link 
+          href="/Dashboard" 
+          className="text-blue-500 hover:text-blue-700"
+        >
+          View Dashboard →
+        </Link>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Test Prompt</CardTitle>

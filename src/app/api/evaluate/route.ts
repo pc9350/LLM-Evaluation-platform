@@ -90,7 +90,7 @@ export async function POST(req: Request) {
           results: {
             create: [{
                 modelName: result.modelName,
-                response: result.response,
+                response: result.response || "",
                 responseTime: result.responseTime,
                 tokenCount: result.metrics.tokenCount,
                 promptTokens: result.metrics.promptTokens,

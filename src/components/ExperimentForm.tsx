@@ -78,7 +78,7 @@ export function ExperimentForm() {
     <div className="container mx-auto p-6">
       <div className="flex justify-end mb-4">
         <Link 
-          href="/dashboard" 
+          href="/Dashboard" 
           className="text-blue-500 hover:text-blue-700"
         >
           View Dashboard →

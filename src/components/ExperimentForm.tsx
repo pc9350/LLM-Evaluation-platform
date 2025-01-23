@@ -53,7 +53,7 @@ export function ExperimentForm() {
               completionTokens: 0,
               cost: 0,
             },
-            error: "Failed to get response"
+            error: error instanceof Error ? error.message : "Failed to get response"
           },
         }));
       }

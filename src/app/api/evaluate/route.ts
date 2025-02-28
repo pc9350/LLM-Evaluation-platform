@@ -17,17 +17,32 @@ function calculateTokenCost(model: string, tokenCount: number): number {
     return (tokenCount / 1000) * (COST_PER_1K_TOKENS[model] || 0);
 }
 
+// Define message type
+type ChatMessage = {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+};
+
 export async function POST(req: Request) {
     try {
-      const { prompt, model } = await req.json();
+      const { prompt, model, systemPrompt, temperature = 0.7, maxTokens = 1000 } = await req.json();
       let result;
       
       const startTime = Date.now();
       
+      // Prepare messages array with optional system prompt
+      const messages: ChatMessage[] = [];
+      if (systemPrompt) {
+        messages.push({ role: 'system', content: systemPrompt });
+      }
+      messages.push({ role: 'user', content: prompt });
+      
       if (model === 'gpt-4') {
         const response = await openai.chat.completions.create({
           model: 'chatgpt-4o-latest',
-          messages: [{ role: 'user', content: prompt }],
+          messages,
+          temperature,
+          max_tokens: maxTokens,
         });
         
         result = {
@@ -45,7 +60,9 @@ export async function POST(req: Request) {
       else if (model === 'llama-70b') {
         const response = await groq.chat.completions.create({
           model: 'llama-3.3-70b-versatile',
-          messages: [{ role: 'user', content: prompt }],
+          messages,
+          temperature,
+          max_tokens: maxTokens,
         });
         
         result = {
@@ -63,7 +80,9 @@ export async function POST(req: Request) {
       else if (model === 'mixtral') {
         const response = await groq.chat.completions.create({
           model: 'mixtral-8x7b-32768',
-          messages: [{ role: 'user', content: prompt }],
+          messages,
+          temperature,
+          max_tokens: maxTokens,
         });
         
         result = {
@@ -83,10 +102,11 @@ export async function POST(req: Request) {
         throw new Error('No result generated');
       }
   
-      // Store in database
+      // Store in database with additional fields
       await prisma.experiment.create({
         data: {
           prompt,
+          // Store additional parameters in a JSON field if schema doesn't support them directly
           results: {
             create: [{
                 modelName: result.modelName,

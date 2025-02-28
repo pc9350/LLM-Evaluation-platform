@@ -2,6 +2,16 @@
 
 A comprehensive platform for evaluating and comparing different Large Language Models (LLMs) in real-time. Test prompts across multiple models, analyze performance metrics, and make data-driven decisions about which LLM best suits your needs.
 
+## 🌟 Features
+
+- **Multi-Model Testing**: Test prompts across GPT-4, Llama 3.3 70B, Mixtral, and more
+- **Real-time Comparison**: Side-by-side comparison of model responses
+- **Advanced Analytics**: Visualize performance metrics with interactive charts
+- **Cost Analysis**: Track and compare token usage and costs
+- **Customizable Parameters**: Adjust temperature, max tokens, and system prompts
+- **Performance Insights**: Get AI-powered recommendations based on your results
+- **Modern UI**: Clean, responsive interface built with the latest web technologies
+
 ## Screenshots
 
 ### Dashboard Overview
@@ -12,13 +22,14 @@ A comprehensive platform for evaluating and comparing different Large Language M
 ![Experiment Interface](./screenshots/Evaluation.jpeg)
 *Interactive prompt testing and result analysis interface*
 
-# 🛠️ Tech Stack
+## 🛠️ Tech Stack
 
-- **Frontend**: [Next.js 14](https://nextjs.org/) + [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
+- **Frontend**: [Next.js 14](https://nextjs.org/) + [React 19](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
 - **UI**: [Shadcn/UI](https://ui.shadcn.com/) + [Tailwind CSS](https://tailwindcss.com/)
 - **Data Viz**: [Recharts](https://recharts.org/)
 - **State**: [Zustand](https://github.com/pmndrs/zustand)
 - **Database**: [Prisma](https://www.prisma.io/) + [PostgreSQL](https://www.postgresql.org/)
+- **APIs**: [OpenAI](https://openai.com/), [Groq](https://groq.com/)
 
 ## 🚀 Getting Started
 
@@ -65,14 +76,40 @@ npm run dev
 
 Visit `http://localhost:3000` - happy evaluating! 🎉
 
+## 📊 Key Features Explained
 
-## 🎯 Usage
+### Advanced Model Comparison
 
-1. Navigate to the platform
-2. Enter your prompt
-3. Hit "Submit" to test across all models
-4. Watch real-time results roll in
-5. Explore the analytics dashboard
+Compare multiple LLMs side-by-side with detailed metrics:
+- Response time
+- Token usage (prompt and completion)
+- Cost analysis
+- Response quality
+
+### Interactive Dashboard
+
+Visualize your experiment results with:
+- Bar charts for response time comparison
+- Stacked charts for token usage breakdown
+- Pie charts for cost distribution
+- Radar charts for performance analysis
+- Line charts for historical trends
+
+### Customizable Experiments
+
+Fine-tune your experiments with:
+- Adjustable temperature settings
+- Max token configuration
+- System prompts
+- Model selection
+
+### Documentation & Resources
+
+Access comprehensive documentation:
+- Getting started guides
+- Model specifications
+- API reference
+- Evaluation metrics explained
 
 ## 🤝 Contributing
 

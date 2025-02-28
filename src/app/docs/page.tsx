@@ -105,7 +105,7 @@ export default function DocsPage() {
                   <li>
                     <strong>Run the experiment</strong>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Click "Run Experiment" to send your prompt to all selected models.
+                      Click &quot;Run Experiment&quot; to send your prompt to all selected models.
                     </p>
                   </li>
                   <li>
@@ -375,7 +375,7 @@ export default function DocsPage() {
                 <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
 {`{
   "prompt": "Your prompt text",
-  "model": "gpt-4", // or "llama-70b", "mixtral"
+  "model": "gpt-4", // or &quot;llama-70b&quot;, &quot;mixtral&quot;
   "systemPrompt": "Optional system prompt",
   "temperature": 0.7,
   "maxTokens": 1000

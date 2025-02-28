@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Zap, Brain, Cpu, Clock, DollarSign, BarChart2 } from "lucide-react";
+import { ArrowRight, Zap, Brain, Clock, DollarSign, BarChart2 } from "lucide-react";
 
 const models = [
   {

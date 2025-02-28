@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Code, Lightbulb, Settings, Terminal } from "lucide-react";
@@ -63,7 +63,7 @@ export default function DocsPage() {
                 </ul>
                 
                 <h3 className="text-lg font-semibold mt-6 mb-2">Prerequisites</h3>
-                <p>To use the platform, you'll need:</p>
+                <p>To use the platform, you&apos;ll need:</p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>API keys for the models you want to test (OpenAI, Groq, etc.)</li>
                   <li>Basic understanding of prompt engineering</li>
@@ -87,7 +87,7 @@ export default function DocsPage() {
                   <li>
                     <strong>Navigate to the New Experiment page</strong>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Click on "New Experiment" in the navigation bar or go to /new-experiment.
+                      Click on &quot;New Experiment&quot; in the navigation bar or go to /new-experiment.
                     </p>
                   </li>
                   <li>
@@ -143,7 +143,7 @@ export default function DocsPage() {
                 
                 <h3 className="text-lg font-semibold mt-4 mb-2">Results Tab</h3>
                 <p className="mb-4">
-                  The Results tab shows each model's response along with key metrics:
+                  The Results tab shows each model&apos;s response along with key metrics:
                 </p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li><strong>Response Time:</strong> How long the model took to generate a response</li>
@@ -190,7 +190,7 @@ export default function DocsPage() {
                   <TabsContent value="gpt-4">
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">GPT-4o</h3>
-                      <p>OpenAI's most advanced model, with broad general knowledge and domain expertise.</p>
+                      <p>OpenAI&apos;s most advanced model, with broad general knowledge and domain expertise.</p>
                       
                       <div className="grid grid-cols-2 gap-4 mt-4">
                         <div>
@@ -217,7 +217,7 @@ export default function DocsPage() {
                   <TabsContent value="llama-70b">
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Llama 3.3 70B</h3>
-                      <p>Meta's largest open model, fine-tuned for instruction following and coding.</p>
+                      <p>Meta&apos;s largest open model, fine-tuned for instruction following and coding.</p>
                       
                       <div className="grid grid-cols-2 gap-4 mt-4">
                         <div>
@@ -312,7 +312,7 @@ export default function DocsPage() {
                   <li>
                     <strong>Completion Tokens:</strong>
                     <p className="text-sm text-muted-foreground mt-1">
-                      The number of tokens in the model's response.
+                      The number of tokens in the model&apos;s response.
                     </p>
                   </li>
                   <li>
@@ -325,7 +325,7 @@ export default function DocsPage() {
                 
                 <h3 className="text-lg font-semibold mt-6 mb-2">Future Metrics</h3>
                 <p className="mb-2">
-                  We're working on adding more advanced evaluation metrics, including:
+                  We&apos;re working on adding more advanced evaluation metrics, including:
                 </p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>
@@ -343,7 +343,7 @@ export default function DocsPage() {
                   <li>
                     <strong>Consistency:</strong>
                     <p className="text-sm text-muted-foreground mt-1">
-                      How consistent the model's responses are across similar prompts.
+                      How consistent the model&apos;s responses are across similar prompts.
                     </p>
                   </li>
                   <li>
@@ -386,7 +386,7 @@ export default function DocsPage() {
                 <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
 {`{
   "modelName": "gpt-4",
-  "response": "Model's response text",
+  "response": "Model&apos;s response text",
   "responseTime": 1.23,
   "metrics": {
     "tokenCount": 150,

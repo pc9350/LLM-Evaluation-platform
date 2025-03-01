@@ -3,13 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Github } from "lucide-react";
+import { Github, Trophy } from "lucide-react";
+import { useExperimentStore } from "@/store/experimentStore";
+import { Progress } from "@/components/ui/progress";
 
 export function Navbar() {
   const pathname = usePathname();
+  const { userXp, userLevel } = useExperimentStore();
 
   const navItems = [
-    { name: "Experiments", path: "/experiments" },
+    { name: "Experiments", path: "/new-experiment" },
+    { name: "Saved", path: "/saved-experiments" },
     { name: "Dashboard", path: "/Dashboard" },
     { name: "Models", path: "/models" },
     { name: "Docs", path: "/docs" },
@@ -41,15 +45,23 @@ export function Navbar() {
               ))}
             </nav>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
+            <div className="flex items-center mr-2">
+              <Trophy className="h-4 w-4 text-yellow-500" />
+              <span className="text-sm font-medium ml-1">Level {userLevel}</span>
+              <div className="w-24 ml-2">
+                <Progress 
+                  value={(userXp % 100)} 
+                  max={100} 
+                  className="h-2 bg-gray-200 dark:bg-gray-700" 
+                />
+              </div>
+            </div>
             <Link href="https://github.com/pc9350/LLM-Evaluation-platform" target="_blank">
               <Button variant="ghost" size="icon" className="h-9 w-9">
                 <Github className="h-5 w-5" />
                 <span className="sr-only">GitHub</span>
               </Button>
-            </Link>
-            <Link href="/new-experiment">
-              <Button>New Experiment</Button>
             </Link>
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,13 +9,39 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { ExperimentResult, useExperimentStore } from '@/store/experimentStore';
-import { Loader2, Save, Share, BarChart } from "lucide-react";
+import { ExperimentResult, useExperimentStore, SavedExperiment } from '@/store/experimentStore';
+import { Loader2, Save, Share, BarChart, Trophy, Zap, Swords, Medal, Star, Award, Hash } from "lucide-react";
 import Link from 'next/link';
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import { useSearchParams } from 'next/navigation';
 
 const MODELS = ["gpt-4", "llama-70b", "mixtral"];
 
-export default function NewExperimentPage() {
+// Function to format code blocks in responses
+const formatResponseWithCodeBlocks = (text: string) => {
+  if (!text) return "";
+  
+  // Replace markdown code blocks with HTML pre and code tags
+  const formattedText = text.replace(
+    /```(\w*)\n([\s\S]*?)```/g, 
+    '<pre class="bg-gray-100 dark:bg-gray-800 p-3 rounded-md overflow-x-auto my-2"><code class="text-sm font-mono">$2</code></pre>'
+  );
+  
+  // Replace inline code with HTML code tags
+  return formattedText.replace(
+    /`([^`]+)`/g,
+    '<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono">$1</code>'
+  );
+};
+
+// Client component that uses useSearchParams
+function ExperimentPageContent() {
+  const searchParams = useSearchParams();
+  const experimentId = searchParams.get('id');
+
   const [prompt, setPrompt] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -23,12 +49,136 @@ export default function NewExperimentPage() {
   const [maxTokens, setMaxTokens] = useState(1000);
   const [useSystemPrompt, setUseSystemPrompt] = useState(false);
   const [experimentName, setExperimentName] = useState("");
-  const { results, setResults } = useExperimentStore();
+  const [battleMode, setBattleMode] = useState(false);
+  const [showWinner, setShowWinner] = useState(false);
+  const { 
+    results, 
+    setResults, 
+    userXp, 
+    userLevel, 
+    addXp, 
+    incrementExperimentCount, 
+    updateAchievement,
+    saveExperiment,
+    achievements,
+    savedExperiments,
+    experimentCount
+  } = useExperimentStore();
+
+  // Load experiment from ID if provided
+  useEffect(() => {
+    if (experimentId) {
+      const experiment = savedExperiments.find(exp => exp.id === experimentId);
+      if (experiment) {
+        setPrompt(experiment.prompt);
+        setSystemPrompt(experiment.systemPrompt);
+        setTemperature(experiment.temperature);
+        setMaxTokens(experiment.maxTokens);
+        setUseSystemPrompt(!!experiment.systemPrompt);
+        setExperimentName(experiment.name);
+        setResults(experiment.results);
+        
+        toast({
+          title: "Experiment Loaded",
+          description: `"${experiment.name}" has been loaded successfully.`,
+        });
+      }
+    }
+  }, [experimentId, savedExperiments, setResults]);
+
+  // Handle save experiment
+  const handleSaveExperiment = () => {
+    if (!experimentName.trim()) {
+      toast({
+        title: "Name Required",
+        description: "Please provide a name for your experiment before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create experiment data to save
+    const experimentData: SavedExperiment = {
+      id: Date.now().toString(),
+      name: experimentName,
+      prompt,
+      systemPrompt: useSystemPrompt ? systemPrompt : "",
+      temperature,
+      maxTokens,
+      results,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Save to our store
+    saveExperiment(experimentData);
+    
+    toast({
+      title: "Experiment Saved",
+      description: `"${experimentName}" has been saved successfully to your browser's local storage.`,
+    });
+  };
+
+  // Handle share experiment
+  const handleShareExperiment = async () => {
+    if (Object.keys(results).length === 0) {
+      toast({
+        title: "No Results",
+        description: "Please run the experiment before sharing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create shareable text
+    const shareText = `
+Check out my LLM experiment results:
+Experiment: ${experimentName || "Untitled"}
+Models tested: ${Object.keys(results).join(", ")}
+Prompt: "${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}"
+Results:
+${Object.entries(results)
+  .map(([model, data]) => 
+    `- ${model}: ${data.responseTime.toFixed(2)}s, ${data.metrics.tokenCount} tokens, $${data.metrics.cost.toFixed(6)}`
+  )
+  .join('\n')}
+`;
+
+    try {
+      // Try to use the Web Share API if available
+      if (navigator.share) {
+        await navigator.share({
+          title: `LLM Experiment: ${experimentName || "Untitled"}`,
+          text: shareText,
+        });
+        
+        toast({
+          title: "Shared Successfully",
+          description: "Your experiment has been shared.",
+        });
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(shareText);
+        
+        toast({
+          title: "Copied to Clipboard",
+          description: "Share text copied to clipboard.",
+        });
+      }
+    } catch (error) {
+      console.error("Error sharing:", error);
+      toast({
+        title: "Share Failed",
+        description: "Could not share the experiment.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setResults({});  // Clear previous results
+    setShowWinner(false);
   
     const requests = MODELS.map(async (model) => {
       try {
@@ -78,6 +228,60 @@ export default function NewExperimentPage() {
   
     await Promise.all(requests);
     setIsLoading(false);
+    
+    // Increment experiment count
+    incrementExperimentCount();
+    
+    // Add XP for completing an experiment
+    addXp(25);
+    
+    // Update achievements
+    // Only update first-experiment if this is actually the first experiment
+    const firstExperiment = experimentCount === 0 ? updateAchievement('first-experiment', 1) : null;
+    const modelMaster = updateAchievement('model-master', 1);
+    
+    // Check for speed demon achievement
+    const fastestTime = Math.min(...Object.values(results).map(r => r.responseTime || Infinity));
+    if (fastestTime < 2) {
+      updateAchievement('speed-demon', 1);
+    }
+    
+    // Check for token master achievement
+    const totalTokens = Object.values(results).reduce((sum, r) => sum + (r.metrics?.tokenCount || 0), 0);
+    updateAchievement('token-master', totalTokens);
+    
+    // Show achievement toast if any were unlocked
+    if ((firstExperiment && firstExperiment.unlocked) || (modelMaster && modelMaster.unlocked)) {
+      const unlockedAchievement = (firstExperiment && firstExperiment.unlocked) ? firstExperiment : modelMaster;
+      
+      toast({
+        title: "Achievement Unlocked!",
+        description: unlockedAchievement?.name,
+        action: <ToastAction altText="View">View</ToastAction>,
+      });
+    }
+    
+    // Show winner in battle mode
+    if (battleMode && Object.keys(results).length === MODELS.length) {
+      setShowWinner(true);
+    }
+  };
+
+  // Determine winner based on response time (could be any metric)
+  const determineWinner = () => {
+    if (Object.keys(results).length < MODELS.length) return null;
+    
+    let winner = '';
+    let bestTime = Infinity;
+    
+    Object.entries(results).forEach(([model, data]) => {
+      if (data.responseTime < bestTime) {
+        bestTime = data.responseTime;
+        winner = model;
+      }
+    });
+    
+    return winner;
   };
 
   return (
@@ -94,11 +298,11 @@ export default function NewExperimentPage() {
               Dashboard
             </Button>
           </Link>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={handleSaveExperiment}>
             <Save className="h-4 w-4" />
             Save
           </Button>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={handleShareExperiment}>
             <Share className="h-4 w-4" />
             Share
           </Button>
@@ -172,6 +376,21 @@ export default function NewExperimentPage() {
                   />
                 </div>
               )}
+              
+              <div className="flex items-center space-x-2 pt-2">
+                <Switch 
+                  id="battle-mode-toggle" 
+                  checked={battleMode}
+                  onCheckedChange={setBattleMode}
+                />
+                <div>
+                  <Label htmlFor="battle-mode-toggle" className="flex items-center gap-2">
+                    <Swords className="h-4 w-4 text-red-500" />
+                    Battle Mode
+                  </Label>
+                  <p className="text-xs text-muted-foreground">Models compete for the best performance</p>
+                </div>
+              </div>
             </CardContent>
             <CardFooter>
               <Button 
@@ -183,6 +402,11 @@ export default function NewExperimentPage() {
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Running Experiment...
+                  </>
+                ) : battleMode ? (
+                  <>
+                    <Swords className="mr-2 h-4 w-4" />
+                    Start Battle
                   </>
                 ) : "Run Experiment"}
               </Button>
@@ -199,7 +423,50 @@ export default function NewExperimentPage() {
                 {MODELS.map((model) => (
                   <div key={model} className="flex items-center justify-between py-2 border-b last:border-0">
                     <span className="font-medium">{model}</span>
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Active</span>
+                    <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                      Active
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-yellow-500" />
+                Achievements
+              </CardTitle>
+              <CardDescription>Your progress and unlocked achievements</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {achievements.map((achievement) => (
+                  <div key={achievement.id} className="flex items-center gap-2">
+                    {achievement.unlocked ? 
+                      (achievement.icon === 'Medal' ? <Medal className="h-5 w-5 text-yellow-500" /> :
+                       achievement.icon === 'Star' ? <Star className="h-5 w-5 text-yellow-500" /> :
+                       achievement.icon === 'Award' ? <Award className="h-5 w-5 text-yellow-500" /> :
+                       achievement.icon === 'Zap' ? <Zap className="h-5 w-5 text-yellow-500" /> :
+                       achievement.icon === 'Hash' ? <Hash className="h-5 w-5 text-yellow-500" /> :
+                       <Trophy className="h-5 w-5 text-yellow-500" />)
+                    : 
+                      (achievement.icon === 'Medal' ? <Medal className="h-5 w-5 text-gray-300" /> :
+                       achievement.icon === 'Star' ? <Star className="h-5 w-5 text-gray-300" /> :
+                       achievement.icon === 'Award' ? <Award className="h-5 w-5 text-gray-300" /> :
+                       achievement.icon === 'Zap' ? <Zap className="h-5 w-5 text-gray-300" /> :
+                       achievement.icon === 'Hash' ? <Hash className="h-5 w-5 text-gray-300" /> :
+                       <Trophy className="h-5 w-5 text-gray-300" />)
+                    }
+                    <div>
+                      <p className={`font-medium ${achievement.unlocked ? '' : 'text-muted-foreground'}`}>
+                        {achievement.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {achievement.description} ({achievement.progress}/{achievement.target})
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -223,6 +490,28 @@ export default function NewExperimentPage() {
             </CardContent>
           </Card>
           
+          {battleMode && showWinner && Object.keys(results).length === MODELS.length && (
+            <Card className="border-2 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 animate-pulse">
+              <CardContent className="pt-6 pb-6">
+                <div className="flex flex-col items-center text-center">
+                  <Trophy className="h-12 w-12 text-yellow-500 mb-2" />
+                  <h3 className="text-xl font-bold mb-1">Battle Winner: {determineWinner()}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Fastest response time: {results[determineWinner() || '']?.responseTime.toFixed(2)}s
+                  </p>
+                  <div className="mt-4 flex gap-2">
+                    <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                      Speed Champion
+                    </Badge>
+                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                      +15 XP
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           <Tabs defaultValue="results" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="results">Results</TabsTrigger>
@@ -231,10 +520,15 @@ export default function NewExperimentPage() {
             <TabsContent value="results" className="space-y-4 mt-4">
               {Object.keys(results).length > 0 ? (
                 MODELS.map((model) => (
-                  <Card key={model}>
+                  <Card key={model} className={battleMode && determineWinner() === model ? "border-2 border-yellow-500" : ""}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg flex justify-between items-center">
-                        <span>{model}</span>
+                        <div className="flex items-center gap-2">
+                          <span>{model}</span>
+                          {battleMode && determineWinner() === model && (
+                            <Trophy className="h-4 w-4 text-yellow-500" />
+                          )}
+                        </div>
                         {results[model] && (
                           <span className="text-sm font-normal text-muted-foreground">
                             {results[model].responseTime.toFixed(2)}s
@@ -245,8 +539,8 @@ export default function NewExperimentPage() {
                     <CardContent>
                       {results[model] ? (
                         <>
-                          <div className="mb-4 whitespace-pre-wrap">
-                            {results[model].response}
+                          <div className="mb-4 whitespace-pre-wrap" 
+                               dangerouslySetInnerHTML={{ __html: formatResponseWithCodeBlocks(results[model].response) }}>
                           </div>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-muted-foreground">
                             <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
@@ -280,10 +574,10 @@ export default function NewExperimentPage() {
                   {isLoading ? (
                     <div className="flex flex-col items-center">
                       <Loader2 className="h-8 w-8 animate-spin mb-2" />
-                      <p>Running experiment across all models...</p>
+                      <p>{battleMode ? "Battle in progress..." : "Running experiment across all models..."}</p>
                     </div>
                   ) : (
-                    <p>Enter a prompt and run the experiment to see results</p>
+                    <p>{battleMode ? "Enter a prompt and start the battle!" : "Enter a prompt and run the experiment to see results"}</p>
                   )}
                 </div>
               )}
@@ -292,7 +586,7 @@ export default function NewExperimentPage() {
               {Object.keys(results).length > 0 ? (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Model Comparison</CardTitle>
+                    <CardTitle>{battleMode ? "Battle Results" : "Model Comparison"}</CardTitle>
                     <CardDescription>Side-by-side comparison of model performance</CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -302,7 +596,14 @@ export default function NewExperimentPage() {
                           <tr className="border-b">
                             <th className="text-left p-2">Metric</th>
                             {MODELS.map(model => (
-                              <th key={model} className="text-left p-2">{model}</th>
+                              <th key={model} className="text-left p-2">
+                                <div className="flex items-center gap-1">
+                                  {model}
+                                  {battleMode && determineWinner() === model && (
+                                    <Trophy className="h-4 w-4 text-yellow-500" />
+                                  )}
+                                </div>
+                              </th>
                             ))}
                           </tr>
                         </thead>
@@ -331,6 +632,20 @@ export default function NewExperimentPage() {
                               </td>
                             ))}
                           </tr>
+                          {battleMode && (
+                            <tr className="border-b">
+                              <td className="p-2 font-medium">Battle Points</td>
+                              {MODELS.map(model => {
+                                const points = determineWinner() === model ? 10 : 
+                                  (model === "gpt-4" ? 7 : model === "llama-70b" ? 5 : 3);
+                                return (
+                                  <td key={model} className="p-2 font-bold">
+                                    {points} pts
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -338,7 +653,7 @@ export default function NewExperimentPage() {
                 </Card>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
-                  <p>Run the experiment to see comparison data</p>
+                  <p>{battleMode ? "Start the battle to see comparison data" : "Run the experiment to see comparison data"}</p>
                 </div>
               )}
             </TabsContent>
@@ -346,5 +661,28 @@ export default function NewExperimentPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback for Suspense
+function ExperimentPageLoading() {
+  return (
+    <div className="container mx-auto p-6 max-w-7xl">
+      <div className="flex justify-center items-center h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-xl font-medium">Loading experiment...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function NewExperimentPage() {
+  return (
+    <Suspense fallback={<ExperimentPageLoading />}>
+      <ExperimentPageContent />
+    </Suspense>
   );
 } 

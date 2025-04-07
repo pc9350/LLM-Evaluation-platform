@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ExperimentResult, useExperimentStore } from '@/store/experimentStore';
 import Link from 'next/link';
 
-const MODELS = ["gpt-4", "llama-70b", "mixtral"];
+const MODELS = ["gpt-4", "llama-3.3-70b", "gemma2-9b"];
 
 export function ExperimentForm() {
   const [prompt, setPrompt] = useState("");

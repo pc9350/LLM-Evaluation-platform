@@ -51,7 +51,14 @@ interface ExperimentStore {
   incrementExperimentCount: () => void;
   updateAchievement: (id: string, progress: number) => Achievement | null;
   getAchievement: (id: string) => Achievement | undefined;
+  migrateExperiments: () => void;
 }
+
+// Model name mapping for migration
+const MODEL_MAPPING: Record<string, string> = {
+  "mixtral": "gemma2-9b",
+  "llama-70b": "llama-3.3-70b",
+};
 
 // Define initial achievements
 const initialAchievements: Achievement[] = [
@@ -124,6 +131,28 @@ export const useExperimentStore = create<ExperimentStore>()(
         savedExperiments: state.savedExperiments.filter(exp => exp.id !== id),
       })),
       
+      migrateExperiments: () => set((state) => {
+        // Migrate saved experiments with old model names
+        const migratedExperiments = state.savedExperiments.map(experiment => {
+          const migratedResults: Record<string, ExperimentResult> = {};
+          
+          Object.entries(experiment.results).forEach(([modelName, result]) => {
+            // If this is an old model name, migrate it to the new one
+            const newModelName = MODEL_MAPPING[modelName] || modelName;
+            migratedResults[newModelName] = result;
+          });
+          
+          return {
+            ...experiment,
+            results: migratedResults
+          };
+        });
+        
+        return {
+          savedExperiments: migratedExperiments
+        };
+      }),
+      
       addXp: (amount) => set((state) => {
         const newXp = state.userXp + amount;
         const newLevel = Math.floor(newXp / 100) + 1;
@@ -177,6 +206,12 @@ export const useExperimentStore = create<ExperimentStore>()(
     }),
     {
       name: 'experiment-storage',
+      onRehydrateStorage: () => (state) => {
+        // Run migration when store is rehydrated
+        if (state) {
+          state.migrateExperiments();
+        }
+      }
     }
   )
 );

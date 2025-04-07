@@ -4,7 +4,7 @@ A comprehensive platform for evaluating and comparing different Large Language M
 
 ## 🌟 Features
 
-- **Multi-Model Testing**: Test prompts across GPT-4, Llama 3.3 70B, Mixtral, and more
+- **Multi-Model Testing**: Test prompts across GPT-4, Llama 3.3 70B, Gemma 2 9B, and more
 - **Real-time Comparison**: Side-by-side comparison of model responses
 - **Advanced Analytics**: Visualize performance metrics with interactive charts
 - **Cost Analysis**: Track and compare token usage and costs

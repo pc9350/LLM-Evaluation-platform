@@ -18,7 +18,7 @@ import { toast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { useSearchParams } from 'next/navigation';
 
-const MODELS = ["gpt-4", "llama-70b", "mixtral"];
+const MODELS = ["gpt-4", "llama-3.3-70b", "gemma2-9b"];
 
 // Function to format code blocks in responses
 const formatResponseWithCodeBlocks = (text: string) => {
@@ -637,7 +637,7 @@ ${Object.entries(results)
                               <td className="p-2 font-medium">Battle Points</td>
                               {MODELS.map(model => {
                                 const points = determineWinner() === model ? 10 : 
-                                  (model === "gpt-4" ? 7 : model === "llama-70b" ? 5 : 3);
+                                  (model === "gpt-4" ? 7 : model === "llama-3.3-70b" ? 5 : 3);
                                 return (
                                   <td key={model} className="p-2 font-bold">
                                     {points} pts

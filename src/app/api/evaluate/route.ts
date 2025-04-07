@@ -9,8 +9,8 @@ const groq = new Groq({ apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY });
 
 const COST_PER_1K_TOKENS: Record<string, number> = {
     "gpt-4": 0.03,
-    "llama-70b": 0.0001,
-    "mixtral": 0.0001,
+    "llama-3.3-70b": 0.0001,
+    "gemma2-9b": 0.00005,
 };
 
 function calculateTokenCost(model: string, tokenCount: number): number {
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
           }
         };
       } 
-      else if (model === 'llama-70b') {
+      else if (model === 'llama-3.3-70b') {
         const response = await groq.chat.completions.create({
           model: 'llama-3.3-70b-versatile',
           messages,
@@ -66,34 +66,34 @@ export async function POST(req: Request) {
         });
         
         result = {
-          modelName: 'llama-70b',
+          modelName: 'llama-3.3-70b',
           response: response.choices[0]?.message?.content,
           responseTime: (Date.now() - startTime) / 1000,
           metrics: {
             tokenCount: response.usage?.total_tokens || 0,
             promptTokens: response.usage?.prompt_tokens || 0,
             completionTokens: response.usage?.completion_tokens || 0,
-            cost: calculateTokenCost('llama-70b', response.usage?.total_tokens || 0)
+            cost: calculateTokenCost('llama-3.3-70b', response.usage?.total_tokens || 0)
           }
         };
       }
-      else if (model === 'mixtral') {
+      else if (model === 'gemma2-9b') {
         const response = await groq.chat.completions.create({
-          model: 'mixtral-8x7b-32768',
+          model: 'gemma2-9b-it',
           messages,
           temperature,
           max_tokens: maxTokens,
         });
         
         result = {
-          modelName: 'mixtral',
+          modelName: 'gemma2-9b',
           response: response.choices[0]?.message?.content,
           responseTime: (Date.now() - startTime) / 1000,
           metrics: {
             tokenCount: response.usage?.total_tokens || 0,
             promptTokens: response.usage?.prompt_tokens || 0,
             completionTokens: response.usage?.completion_tokens || 0,
-            cost: calculateTokenCost('mixtral', response.usage?.total_tokens || 0)
+            cost: calculateTokenCost('gemma2-9b', response.usage?.total_tokens || 0)
           }
         };
       }

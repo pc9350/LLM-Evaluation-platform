@@ -37,7 +37,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-semibold mb-2">Multi-Model Testing</h3>
           <p className="text-muted-foreground">
-            Test your prompts across GPT-4, Llama 3.3 70B, Mixtral, and more in a single experiment.
+            Test your prompts across GPT-4, Llama 3.3 70B, Gemma 2 9B, and more in a single experiment.
           </p>
         </div>
 

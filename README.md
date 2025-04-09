@@ -2,7 +2,7 @@
 
 A comprehensive platform for evaluating and comparing different Large Language Models (LLMs) in real-time. Test prompts across multiple models, analyze performance metrics, and make data-driven decisions about which LLM best suits your needs.
 
-## 🌟 Features
+## Features
 
 - **Multi-Model Testing**: Test prompts across GPT-4, Llama 3.3 70B, Gemma 2 9B, and more
 - **Real-time Comparison**: Side-by-side comparison of model responses
@@ -11,6 +11,9 @@ A comprehensive platform for evaluating and comparing different Large Language M
 - **Customizable Parameters**: Adjust temperature, max tokens, and system prompts
 - **Performance Insights**: Get AI-powered recommendations based on your results
 - **Modern UI**: Clean, responsive interface built with the latest web technologies
+- **Battle Mode**: Pit models against each other to determine the best performer for specific tasks
+- **Experiment Management**: Save, load, and share your experiment results for future reference
+- **Gamification System**: Earn XP, level up, and unlock achievements as you use the platform
 
 ## Screenshots
 
@@ -22,16 +25,7 @@ A comprehensive platform for evaluating and comparing different Large Language M
 ![Experiment Interface](./screenshots/Evaluation.jpeg)
 *Interactive prompt testing and result analysis interface*
 
-## 🛠️ Tech Stack
-
-- **Frontend**: [Next.js 14](https://nextjs.org/) + [React 19](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
-- **UI**: [Shadcn/UI](https://ui.shadcn.com/) + [Tailwind CSS](https://tailwindcss.com/)
-- **Data Viz**: [Recharts](https://recharts.org/)
-- **State**: [Zustand](https://github.com/pmndrs/zustand)
-- **Database**: [Prisma](https://www.prisma.io/) + [PostgreSQL](https://www.postgresql.org/)
-- **APIs**: [OpenAI](https://openai.com/), [Groq](https://groq.com/)
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -39,7 +33,7 @@ A comprehensive platform for evaluating and comparing different Large Language M
 - npm >= v8.0.0
 - PostgreSQL
 
-### 🔧 Installation
+### Installation
 
 1. **Clone the repo**
 ```bash
@@ -76,7 +70,7 @@ npm run dev
 
 Visit `http://localhost:3000` - happy evaluating! 🎉
 
-## 📊 Key Features Explained
+## Key Features Explained
 
 ### Advanced Model Comparison
 
@@ -95,6 +89,22 @@ Visualize your experiment results with:
 - Radar charts for performance analysis
 - Line charts for historical trends
 
+### Battle Mode
+
+Directly compare model performance with a competitive edge:
+- Automatic winner determination based on response time
+- Visual highlighting of the winning model
+- Performance points system for objective comparisons
+- Perfect for quickly identifying the best model for specific tasks
+
+### Gamification System
+
+Make LLM evaluation more engaging:
+- Earn XP for running experiments and unlocking achievements
+- Level up to unlock advanced platform features
+- Track achievements like "First Experiment," "Model Master," and "Token Master"
+- Visualize your progress on the user dashboard
+
 ### Customizable Experiments
 
 Fine-tune your experiments with:
@@ -111,7 +121,7 @@ Access comprehensive documentation:
 - API reference
 - Evaluation metrics explained
 
-## 🤝 Contributing
+## Contributing
 
 We love contributions! Here's how you can help:
 
@@ -121,16 +131,7 @@ We love contributions! Here's how you can help:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 🙏 Acknowledgments
-
-Built with amazing open-source tools:
-- [Next.js](https://nextjs.org/)
-- [Shadcn/UI](https://ui.shadcn.com/)
-- [Recharts](https://recharts.org/)
-- [Prisma](https://www.prisma.io/)
-- [Zustand](https://github.com/pmndrs/zustand)
-
-## 📫 Contact
+## Contact
 
 Pranav Chhabra - [chhabrapranav2001@gmail.com](mailto:chhabrapranav2001@gmail.com)
 

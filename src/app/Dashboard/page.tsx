@@ -31,7 +31,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 
-const MODELS = ["gpt-4", "llama-70b", "mixtral"];
+const MODELS = ["gpt-4", "llama-3.3-70b", "gemma2-9b"];
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658"];
 
 export default function Dashboard() {
@@ -93,32 +93,32 @@ export default function Dashboard() {
       {
         metric: "Response Speed",
         gpt4: 3,
-        llama70b: 5,
-        mixtral: 4,
+        llama3370b: 5,
+        gemma29b: 4,
       },
       {
         metric: "Token Efficiency",
         gpt4: 4,
-        llama70b: 3,
-        mixtral: 5,
+        llama3370b: 3,
+        gemma29b: 5,
       },
       {
         metric: "Cost Efficiency",
         gpt4: 2,
-        llama70b: 5,
-        mixtral: 5,
+        llama3370b: 5,
+        gemma29b: 5,
       },
       {
         metric: "Output Quality",
         gpt4: 5,
-        llama70b: 4,
-        mixtral: 3.5,
+        llama3370b: 4,
+        gemma29b: 3.5,
       },
       {
         metric: "Reasoning",
         gpt4: 5,
-        llama70b: 4,
-        mixtral: 3.5,
+        llama3370b: 4,
+        gemma29b: 3.5,
       },
     ];
   };
@@ -325,11 +325,11 @@ export default function Dashboard() {
                         <XAxis dataKey="name" />
                         <YAxis />
                         <Tooltip formatter={(value) => [`${value}s`, 'Response Time']} />
-                        <Legend />
-                        <Bar
-                          dataKey="responseTime"
-                          fill="#8884d8"
+                        <Bar 
+                          dataKey="responseTime" 
+                          fill="#8884d8" 
                           name="Response Time (s)"
+                          label={{ position: 'top', formatter: (val: number) => val.toFixed(2) + 's' }}
                         />
                       </BarChart>
                     </ResponsiveContainer>
@@ -463,14 +463,14 @@ export default function Dashboard() {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
                         data={[
-                          { name: 'Run 1', gpt4: 2.1, llama70b: 0.8, mixtral: 1.2 },
-                          { name: 'Run 2', gpt4: 2.3, llama70b: 0.9, mixtral: 1.1 },
-                          { name: 'Run 3', gpt4: 2.0, llama70b: 0.7, mixtral: 1.0 },
-                          { name: 'Run 4', gpt4: 2.2, llama70b: 0.8, mixtral: 1.3 },
+                          { name: 'Run 1', gpt4: 2.1, llama3370b: 0.8, gemma29b: 1.2 },
+                          { name: 'Run 2', gpt4: 2.3, llama3370b: 0.9, gemma29b: 1.1 },
+                          { name: 'Run 3', gpt4: 2.0, llama3370b: 0.7, gemma29b: 1.0 },
+                          { name: 'Run 4', gpt4: 2.2, llama3370b: 0.8, gemma29b: 1.3 },
                           { name: 'Current', 
                             gpt4: results['gpt-4']?.responseTime || 0, 
-                            llama70b: results['llama-70b']?.responseTime || 0, 
-                            mixtral: results['mixtral']?.responseTime || 0 
+                            llama3370b: results['llama-3.3-70b']?.responseTime || 0, 
+                            gemma29b: results['gemma2-9b']?.responseTime || 0 
                           },
                         ]}
                       >
@@ -480,8 +480,8 @@ export default function Dashboard() {
                         <Tooltip formatter={(value) => [`${value}s`, 'Response Time']} />
                         <Legend />
                         <Line type="monotone" dataKey="gpt4" stroke="#8884d8" name="GPT-4" />
-                        <Line type="monotone" dataKey="llama70b" stroke="#82ca9d" name="Llama 70B" />
-                        <Line type="monotone" dataKey="mixtral" stroke="#ffc658" name="Mixtral" />
+                        <Line type="monotone" dataKey="llama3370b" stroke="#82ca9d" name="Llama 3.3 70B" />
+                        <Line type="monotone" dataKey="gemma29b" stroke="#ffc658" name="Gemma 2 9B" />
                       </LineChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -516,15 +516,15 @@ export default function Dashboard() {
                               fillOpacity={0.2}
                             />
                             <Radar
-                              name="Llama 70B"
-                              dataKey="llama70b"
+                              name="Llama 3.3 70B"
+                              dataKey="llama3370b"
                               stroke="#10b981"
                               fill="#10b981"
                               fillOpacity={0.2}
                             />
                             <Radar
-                              name="Mixtral"
-                              dataKey="mixtral"
+                              name="Gemma 2 9B"
+                              dataKey="gemma29b"
                               stroke="#8b5cf6"
                               fill="#8b5cf6"
                               fillOpacity={0.2}
@@ -637,7 +637,7 @@ export default function Dashboard() {
                       <h3 className="font-semibold text-purple-700 dark:text-purple-300">Recommendation</h3>
                       <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">
                         Based on this experiment, the optimal model choice depends on your priorities:
-                        {' '}GPT-4 for quality, Llama 70B for speed, or Mixtral for a balance of cost and performance.
+                        {' '}GPT-4 for quality, Llama 3.3 70B for speed, or Gemma 2 9B for a balance of cost and performance.
                       </p>
                     </div>
                   </div>

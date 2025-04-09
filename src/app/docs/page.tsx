@@ -182,14 +182,14 @@ export default function DocsPage() {
                 
                 <Tabs defaultValue="gpt-4">
                   <TabsList className="mb-4">
-                    <TabsTrigger value="gpt-4">GPT-4o</TabsTrigger>
-                    <TabsTrigger value="llama-70b">Llama 3.3 70B</TabsTrigger>
-                    <TabsTrigger value="mixtral">Mixtral 8x7B</TabsTrigger>
+                    <TabsTrigger value="gpt-4">GPT-4</TabsTrigger>
+                    <TabsTrigger value="llama-3.3-70b">Llama 3.3 70B</TabsTrigger>
+                    <TabsTrigger value="gemma2-9b">Gemma 2 9B</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="gpt-4">
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">GPT-4o</h3>
+                      <h3 className="text-lg font-semibold">GPT-4</h3>
                       <p>OpenAI&apos;s most advanced model, with broad general knowledge and domain expertise.</p>
                       
                       <div className="grid grid-cols-2 gap-4 mt-4">
@@ -214,57 +214,45 @@ export default function DocsPage() {
                     </div>
                   </TabsContent>
                   
-                  <TabsContent value="llama-70b">
+                  <TabsContent value="llama-3.3-70b">
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Llama 3.3 70B</h3>
-                      <p>Meta&apos;s largest open model, fine-tuned for instruction following and coding.</p>
-                      
-                      <div className="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                          <h4 className="font-medium">Strengths</h4>
-                          <ul className="list-disc pl-6 mt-2 space-y-1">
-                            <li>Fast inference</li>
-                            <li>Code generation</li>
-                            <li>Instruction following</li>
-                            <li>Cost-effective</li>
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Specifications</h4>
-                          <ul className="mt-2 space-y-1">
-                            <li><strong>Context Window:</strong> 32,768 tokens</li>
-                            <li><strong>Cost:</strong> $0.0001 per 1K tokens</li>
-                            <li><strong>Provider:</strong> Meta (via Groq)</li>
-                          </ul>
-                        </div>
-                      </div>
+                      <p>
+                        <strong>Provider:</strong> Meta (via Groq API)
+                      </p>
+                      <p>
+                        <strong>Description:</strong> Meta&apos;s largest and most capable model, fine-tuned for instruction following and coding tasks.
+                      </p>
+                      <p>
+                        <strong>Strengths:</strong> Fast inference, high-quality code generation, instruction following, good multi-turn conversations
+                      </p>
+                      <p>
+                        <strong>Context Window:</strong> 32,768 tokens
+                      </p>
+                      <p>
+                        <strong>Cost:</strong> $0.0001 per 1K tokens
+                      </p>
                     </div>
                   </TabsContent>
                   
-                  <TabsContent value="mixtral">
+                  <TabsContent value="gemma2-9b">
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Mixtral 8x7B</h3>
-                      <p>A mixture-of-experts model with strong performance across various tasks.</p>
-                      
-                      <div className="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                          <h4 className="font-medium">Strengths</h4>
-                          <ul className="list-disc pl-6 mt-2 space-y-1">
-                            <li>Balanced performance</li>
-                            <li>Multilingual</li>
-                            <li>Efficient architecture</li>
-                            <li>Cost-effective</li>
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Specifications</h4>
-                          <ul className="mt-2 space-y-1">
-                            <li><strong>Context Window:</strong> 32,768 tokens</li>
-                            <li><strong>Cost:</strong> $0.0001 per 1K tokens</li>
-                            <li><strong>Provider:</strong> Mistral AI (via Groq)</li>
-                          </ul>
-                        </div>
-                      </div>
+                      <h3 className="text-lg font-semibold">Gemma 2 9B</h3>
+                      <p>
+                        <strong>Provider:</strong> Google (via Groq API)
+                      </p>
+                      <p>
+                        <strong>Description:</strong> Google's efficient, instruction-tuned model with balanced performance and speed.
+                      </p>
+                      <p>
+                        <strong>Strengths:</strong> Balanced performance, multilingual, efficient architecture, great value
+                      </p>
+                      <p>
+                        <strong>Context Window:</strong> 32,768 tokens
+                      </p>
+                      <p>
+                        <strong>Cost:</strong> $0.00005 per 1K tokens
+                      </p>
                     </div>
                   </TabsContent>
                 </Tabs>
@@ -374,11 +362,10 @@ export default function DocsPage() {
                 <h4 className="font-medium mt-4 mb-2">Request Body</h4>
                 <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
 {`{
-  "prompt": "Your prompt text",
-  "model": "gpt-4", // or &quot;llama-70b&quot;, &quot;mixtral&quot;
-  "systemPrompt": "Optional system prompt",
+  "prompt": "Explain quantum computing in simple terms",
+  "model": "gpt-4", // or "llama-3.3-70b", "gemma2-9b"
   "temperature": 0.7,
-  "maxTokens": 1000
+  "max_tokens": 1000
 }`}
                 </pre>
                 

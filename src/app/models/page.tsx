@@ -21,7 +21,7 @@ const models = [
     icon: Brain,
   },
   {
-    id: "llama-70b",
+    id: "llama-3.3-70b",
     name: "Llama 3.3 70B",
     provider: "Meta (via Groq)",
     description: "Meta&apos;s largest open model, fine-tuned for instruction following and coding.",
@@ -33,13 +33,13 @@ const models = [
     icon: Zap,
   },
   {
-    id: "mixtral",
-    name: "Mixtral 8x7B",
-    provider: "Mistral AI (via Groq)",
-    description: "A mixture-of-experts model with strong performance across various tasks.",
+    id: "gemma2-9b",
+    name: "Gemma 2 9B",
+    provider: "Google (via Groq)",
+    description: "Google's efficient, instruction-tuned model with balanced performance and speed.",
     strengths: ["Balanced performance", "Multilingual", "Efficient architecture", "Cost-effective"],
     contextWindow: "32,768 tokens",
-    costPer1kTokens: "$0.0001",
+    costPer1kTokens: "$0.00005",
     badge: "Balanced",
     badgeColor: "bg-purple-100 text-purple-800",
     icon: BarChart2,
@@ -47,12 +47,12 @@ const models = [
 ];
 
 const modelComparisons = [
-  { metric: "Reasoning", gpt4: 5, llama70b: 4, mixtral: 3.5 },
-  { metric: "Creative Writing", gpt4: 5, llama70b: 4, mixtral: 3.5 },
-  { metric: "Code Generation", gpt4: 5, llama70b: 4.5, mixtral: 3.5 },
-  { metric: "Response Speed", gpt4: 3, llama70b: 5, mixtral: 4.5 },
-  { metric: "Cost Efficiency", gpt4: 2, llama70b: 5, mixtral: 5 },
-  { metric: "Context Length", gpt4: 5, llama70b: 4, mixtral: 4 },
+  { metric: "Reasoning", gpt4: 5, llama3370b: 4, gemma29b: 3.5 },
+  { metric: "Creative Writing", gpt4: 5, llama3370b: 4, gemma29b: 3.5 },
+  { metric: "Code Generation", gpt4: 5, llama3370b: 4.5, gemma29b: 3.5 },
+  { metric: "Response Speed", gpt4: 3, llama3370b: 5, gemma29b: 4.5 },
+  { metric: "Cost Efficiency", gpt4: 2, llama3370b: 5, gemma29b: 5 },
+  { metric: "Context Length", gpt4: 5, llama3370b: 4, gemma29b: 4 },
 ];
 
 export default function ModelsPage() {
@@ -147,7 +147,7 @@ export default function ModelsPage() {
                       <th className="text-left p-2">Metric</th>
                       <th className="text-left p-2">GPT-4o</th>
                       <th className="text-left p-2">Llama 3.3 70B</th>
-                      <th className="text-left p-2">Mixtral 8x7B</th>
+                      <th className="text-left p-2">Gemma 2 9B</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -170,10 +170,10 @@ export default function ModelsPage() {
                             <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
                               <div 
                                 className="bg-green-600 h-2.5 rounded-full" 
-                                style={{ width: `${(comparison.llama70b / 5) * 100}%` }}
+                                style={{ width: `${(comparison.llama3370b / 5) * 100}%` }}
                               ></div>
                             </div>
-                            {comparison.llama70b}
+                            {comparison.llama3370b}
                           </div>
                         </td>
                         <td className="p-2">
@@ -181,10 +181,10 @@ export default function ModelsPage() {
                             <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
                               <div 
                                 className="bg-purple-600 h-2.5 rounded-full" 
-                                style={{ width: `${(comparison.mixtral / 5) * 100}%` }}
+                                style={{ width: `${(comparison.gemma29b / 5) * 100}%` }}
                               ></div>
                             </div>
-                            {comparison.mixtral}
+                            {comparison.gemma29b}
                           </div>
                         </td>
                       </tr>

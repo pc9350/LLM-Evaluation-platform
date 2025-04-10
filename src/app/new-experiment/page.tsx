@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { useSearchParams } from 'next/navigation';
+import { ResultsContainer } from "@/components/Results";
 
 const MODELS = ["gpt-4", "llama-3.3-70b", "gemma2-9b"];
 
@@ -205,6 +206,10 @@ ${Object.entries(results)
               promptTokens: data.metrics?.promptTokens || 0,
               completionTokens: data.metrics?.completionTokens || 0,
               cost: data.metrics?.cost || 0,
+              quality: data.metrics?.quality || 0,
+              readability: data.metrics?.readability || 0,
+              coherence: data.metrics?.coherence || 0,
+              vocabulary: data.metrics?.vocabulary || 0
             }
           },
         }));
@@ -219,6 +224,10 @@ ${Object.entries(results)
               promptTokens: 0,
               completionTokens: 0,
               cost: 0,
+              quality: 0,
+              readability: 0,
+              coherence: 0,
+              vocabulary: 0
             },
             error: error instanceof Error ? error.message : "Failed to get response"
           },
@@ -519,56 +528,21 @@ ${Object.entries(results)
             </TabsList>
             <TabsContent value="results" className="space-y-4 mt-4">
               {Object.keys(results).length > 0 ? (
-                MODELS.map((model) => (
-                  <Card key={model} className={battleMode && determineWinner() === model ? "border-2 border-yellow-500" : ""}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <span>{model}</span>
-                          {battleMode && determineWinner() === model && (
-                            <Trophy className="h-4 w-4 text-yellow-500" />
-                          )}
-                        </div>
-                        {results[model] && (
-                          <span className="text-sm font-normal text-muted-foreground">
-                            {results[model].responseTime.toFixed(2)}s
-                          </span>
-                        )}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {results[model] ? (
-                        <>
-                          <div className="mb-4 whitespace-pre-wrap" 
-                               dangerouslySetInnerHTML={{ __html: formatResponseWithCodeBlocks(results[model].response) }}>
-                          </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-muted-foreground">
-                            <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                              <p className="font-semibold">Total Tokens</p>
-                              <p>{results[model].metrics?.tokenCount || 0}</p>
-                            </div>
-                            <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                              <p className="font-semibold">Prompt Tokens</p>
-                              <p>{results[model].metrics?.promptTokens || 0}</p>
-                            </div>
-                            <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                              <p className="font-semibold">Completion Tokens</p>
-                              <p>{results[model].metrics?.completionTokens || 0}</p>
-                            </div>
-                            <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                              <p className="font-semibold">Cost</p>
-                              <p>${results[model].metrics?.cost.toFixed(6) || 0}</p>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-muted-foreground">
-                          {isLoading ? "Waiting for response..." : "No result yet"}
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))
+                <ResultsContainer modelResults={Object.keys(results).map(model => ({
+                  modelName: model,
+                  response: results[model].response,
+                  responseTime: results[model].responseTime,
+                  metrics: {
+                    tokenCount: results[model].metrics?.tokenCount || 0,
+                    promptTokens: results[model].metrics?.promptTokens || 0,
+                    completionTokens: results[model].metrics?.completionTokens || 0,
+                    cost: results[model].metrics?.cost || 0,
+                    quality: results[model].metrics?.quality || 0,
+                    readability: results[model].metrics?.readability || 0,
+                    coherence: results[model].metrics?.coherence || 0,
+                    vocabulary: results[model].metrics?.vocabulary || 0
+                  }
+                }))} />
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   {isLoading ? (

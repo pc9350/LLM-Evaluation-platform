@@ -6,6 +6,10 @@ interface Metrics {
   promptTokens: number;
   completionTokens: number;
   cost: number;
+  quality?: number;
+  readability?: number;
+  coherence?: number;
+  vocabulary?: number;
 }
 
 export interface ExperimentResult {

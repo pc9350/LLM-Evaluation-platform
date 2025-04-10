@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import OpenAI from 'openai';
 import Groq from 'groq-sdk';
+import { calculateOverallQuality } from '@/utils/qualityMetrics';
 
 const prisma = new PrismaClient();
 const openai = new OpenAI({ apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY });
@@ -45,15 +46,22 @@ export async function POST(req: Request) {
           max_tokens: maxTokens,
         });
         
+        const responseContent = response.choices[0].message.content || "";
+        const qualityMetrics = calculateOverallQuality(responseContent);
+        
         result = {
           modelName: 'gpt-4',
-          response: response.choices[0].message.content,
+          response: responseContent,
           responseTime: (Date.now() - startTime) / 1000,
           metrics: {
             tokenCount: response.usage?.total_tokens || 0,
             promptTokens: response.usage?.prompt_tokens || 0,
             completionTokens: response.usage?.completion_tokens || 0,
-            cost: calculateTokenCost('gpt-4', response.usage?.total_tokens || 0)
+            cost: calculateTokenCost('gpt-4', response.usage?.total_tokens || 0),
+            quality: qualityMetrics.overall,
+            readability: qualityMetrics.readability,
+            coherence: qualityMetrics.coherence,
+            vocabulary: qualityMetrics.vocabulary
           }
         };
       } 
@@ -65,15 +73,22 @@ export async function POST(req: Request) {
           max_tokens: maxTokens,
         });
         
+        const responseContent = response.choices[0]?.message?.content || "";
+        const qualityMetrics = calculateOverallQuality(responseContent);
+        
         result = {
           modelName: 'llama-3.3-70b',
-          response: response.choices[0]?.message?.content,
+          response: responseContent,
           responseTime: (Date.now() - startTime) / 1000,
           metrics: {
             tokenCount: response.usage?.total_tokens || 0,
             promptTokens: response.usage?.prompt_tokens || 0,
             completionTokens: response.usage?.completion_tokens || 0,
-            cost: calculateTokenCost('llama-3.3-70b', response.usage?.total_tokens || 0)
+            cost: calculateTokenCost('llama-3.3-70b', response.usage?.total_tokens || 0),
+            quality: qualityMetrics.overall,
+            readability: qualityMetrics.readability,
+            coherence: qualityMetrics.coherence,
+            vocabulary: qualityMetrics.vocabulary
           }
         };
       }
@@ -85,15 +100,22 @@ export async function POST(req: Request) {
           max_tokens: maxTokens,
         });
         
+        const responseContent = response.choices[0]?.message?.content || "";
+        const qualityMetrics = calculateOverallQuality(responseContent);
+        
         result = {
           modelName: 'gemma2-9b',
-          response: response.choices[0]?.message?.content,
+          response: responseContent,
           responseTime: (Date.now() - startTime) / 1000,
           metrics: {
             tokenCount: response.usage?.total_tokens || 0,
             promptTokens: response.usage?.prompt_tokens || 0,
             completionTokens: response.usage?.completion_tokens || 0,
-            cost: calculateTokenCost('gemma2-9b', response.usage?.total_tokens || 0)
+            cost: calculateTokenCost('gemma2-9b', response.usage?.total_tokens || 0),
+            quality: qualityMetrics.overall,
+            readability: qualityMetrics.readability,
+            coherence: qualityMetrics.coherence,
+            vocabulary: qualityMetrics.vocabulary
           }
         };
       }
@@ -115,7 +137,9 @@ export async function POST(req: Request) {
                 tokenCount: result.metrics.tokenCount,
                 promptTokens: result.metrics.promptTokens,
                 completionTokens: result.metrics.completionTokens,
-                cost: result.metrics.cost
+                cost: result.metrics.cost,
+                accuracy: result.metrics.quality || null,
+                relevancy: result.metrics.coherence || null
               }]
           }
         }

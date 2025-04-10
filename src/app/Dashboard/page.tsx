@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useExperimentStore } from "@/store/experimentStore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,6 +45,29 @@ export default function Dashboard() {
     experimentCount,
     deleteSavedExperiment 
   } = useExperimentStore();
+  
+  const [historicalData, setHistoricalData] = useState<any[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  // Fetch historical data
+  useEffect(() => {
+    async function fetchHistoricalData() {
+      try {
+        setIsLoadingHistory(true);
+        const response = await fetch('/api/experiments/history?limit=5');
+        if (response.ok) {
+          const data = await response.json();
+          setHistoricalData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching historical data:', error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    }
+    
+    fetchHistoricalData();
+  }, []);
 
   const prepareChartData = () => {
     return MODELS.map((model) => ({
@@ -89,36 +113,169 @@ export default function Dashboard() {
   };
 
   const prepareModelPerformanceData = () => {
+    // If no results are available, return empty metrics
+    if (Object.keys(results).length === 0) {
+      return [
+        {
+          metric: "Response Speed",
+          gpt4: 0,
+          llama3370b: 0,
+          gemma29b: 0,
+        },
+        {
+          metric: "Token Efficiency",
+          gpt4: 0,
+          llama3370b: 0,
+          gemma29b: 0,
+        },
+        {
+          metric: "Cost Efficiency",
+          gpt4: 0,
+          llama3370b: 0,
+          gemma29b: 0,
+        },
+        {
+          metric: "Output Quality",
+          gpt4: 0,
+          llama3370b: 0,
+          gemma29b: 0,
+        },
+        {
+          metric: "Reasoning",
+          gpt4: 0,
+          llama3370b: 0,
+          gemma29b: 0,
+        },
+      ];
+    }
+
+    // Extract actual metrics from results
+    const responseSpeedScores: Record<string, number> = {};
+    const tokenEfficiencyScores: Record<string, number> = {};
+    const costEfficiencyScores: Record<string, number> = {};
+    
+    // Calculate min/max values for normalization
+    let minResponseTime = Infinity;
+    let maxResponseTime = 0;
+    let minTokensPerSecond = Infinity;
+    let maxTokensPerSecond = 0;
+    let minCostPerToken = Infinity;
+    let maxCostPerToken = 0;
+    
+    // First pass to get ranges for normalization
+    MODELS.forEach(model => {
+      if (results[model]) {
+        const responseTime = results[model].responseTime || 0;
+        minResponseTime = Math.min(minResponseTime, responseTime > 0 ? responseTime : Infinity);
+        maxResponseTime = Math.max(maxResponseTime, responseTime);
+        
+        const tokenCount = results[model].metrics?.tokenCount || 0;
+        const tokensPerSecond = responseTime > 0 ? tokenCount / responseTime : 0;
+        minTokensPerSecond = Math.min(minTokensPerSecond, tokensPerSecond > 0 ? tokensPerSecond : Infinity);
+        maxTokensPerSecond = Math.max(maxTokensPerSecond, tokensPerSecond);
+        
+        const cost = results[model].metrics?.cost || 0;
+        const costPerToken = tokenCount > 0 ? cost / tokenCount : 0;
+        minCostPerToken = Math.min(minCostPerToken, costPerToken > 0 ? costPerToken : Infinity);
+        maxCostPerToken = Math.max(maxCostPerToken, costPerToken);
+      }
+    });
+    
+    // Normalize to handle cases where min=max
+    if (minResponseTime === maxResponseTime) maxResponseTime = minResponseTime * 1.1 + 0.1;
+    if (minTokensPerSecond === maxTokensPerSecond) maxTokensPerSecond = minTokensPerSecond * 1.1 + 0.1;
+    if (minCostPerToken === maxCostPerToken) maxCostPerToken = minCostPerToken * 1.1 + 0.000001;
+    
+    // Handle edge cases
+    if (minResponseTime === Infinity) minResponseTime = 0;
+    if (minTokensPerSecond === Infinity) minTokensPerSecond = 0;
+    if (minCostPerToken === Infinity) minCostPerToken = 0;
+    
+    // Second pass to calculate scores using normalization
+    MODELS.forEach(model => {
+      const modelKey = model.replace(/[-\.]/g, '').replace(/\d+/g, '') as 'gpt4' | 'llama3370b' | 'gemma29b';
+      
+      if (results[model]) {
+        // Response Speed: Lower is better (1-5 scale)
+        // Normalize and invert (5 - normalized value)
+        const responseTime = results[model].responseTime || 0;
+        if (responseTime > 0) {
+          const normalizedTime = (responseTime - minResponseTime) / (maxResponseTime - minResponseTime);
+          responseSpeedScores[modelKey] = 5 - (normalizedTime * 4) - 1; // 1-5 scale
+        } else {
+          responseSpeedScores[modelKey] = 0;
+        }
+        
+        // Token Efficiency: Higher tokens per second is better (1-5 scale)
+        const tokenCount = results[model].metrics?.tokenCount || 0;
+        const tokensPerSecond = responseTime > 0 ? tokenCount / responseTime : 0;
+        if (tokensPerSecond > 0) {
+          const normalizedTPS = (tokensPerSecond - minTokensPerSecond) / (maxTokensPerSecond - minTokensPerSecond);
+          tokenEfficiencyScores[modelKey] = (normalizedTPS * 4) + 1; // 1-5 scale
+        } else {
+          tokenEfficiencyScores[modelKey] = 0;
+        }
+        
+        // Cost Efficiency: Lower cost per token is better (1-5 scale)
+        const cost = results[model].metrics?.cost || 0;
+        const costPerToken = tokenCount > 0 ? cost / tokenCount : 0;
+        if (costPerToken > 0) {
+          const normalizedCPT = (costPerToken - minCostPerToken) / (maxCostPerToken - minCostPerToken);
+          costEfficiencyScores[modelKey] = 5 - (normalizedCPT * 4) - 1; // 1-5 scale, inverted
+        } else {
+          costEfficiencyScores[modelKey] = 0;
+        }
+      } else {
+        responseSpeedScores[modelKey] = 0;
+        tokenEfficiencyScores[modelKey] = 0;
+        costEfficiencyScores[modelKey] = 0;
+      }
+    });
+    
+    // We'll still need to use some subjective metrics for quality and reasoning
+    // These could be improved with automated evaluation in the future
+    const qualityScores: Record<string, number> = {
+      gpt4: results['gpt-4'] ? 5 : 0,
+      llama3370b: results['llama-3.3-70b'] ? 4 : 0,
+      gemma29b: results['gemma2-9b'] ? 3.5 : 0,
+    };
+    
+    const reasoningScores: Record<string, number> = {
+      gpt4: results['gpt-4'] ? 5 : 0,
+      llama3370b: results['llama-3.3-70b'] ? 4 : 0,
+      gemma29b: results['gemma2-9b'] ? 3.5 : 0,
+    };
+    
     return [
       {
         metric: "Response Speed",
-        gpt4: 3,
-        llama3370b: 5,
-        gemma29b: 4,
+        gpt4: responseSpeedScores['gpt4'] || 0,
+        llama3370b: responseSpeedScores['llama3370b'] || 0,
+        gemma29b: responseSpeedScores['gemma29b'] || 0,
       },
       {
         metric: "Token Efficiency",
-        gpt4: 4,
-        llama3370b: 3,
-        gemma29b: 5,
+        gpt4: tokenEfficiencyScores['gpt4'] || 0,
+        llama3370b: tokenEfficiencyScores['llama3370b'] || 0,
+        gemma29b: tokenEfficiencyScores['gemma29b'] || 0,
       },
       {
         metric: "Cost Efficiency",
-        gpt4: 2,
-        llama3370b: 5,
-        gemma29b: 5,
+        gpt4: costEfficiencyScores['gpt4'] || 0,
+        llama3370b: costEfficiencyScores['llama3370b'] || 0,
+        gemma29b: costEfficiencyScores['gemma29b'] || 0,
       },
       {
         metric: "Output Quality",
-        gpt4: 5,
-        llama3370b: 4,
-        gemma29b: 3.5,
+        gpt4: qualityScores['gpt4'],
+        llama3370b: qualityScores['llama3370b'],
+        gemma29b: qualityScores['gemma29b'],
       },
       {
         metric: "Reasoning",
-        gpt4: 5,
-        llama3370b: 4,
-        gemma29b: 3.5,
+        gpt4: reasoningScores['gpt4'],
+        llama3370b: reasoningScores['llama3370b'],
+        gemma29b: reasoningScores['gemma29b'],
       },
     ];
   };
@@ -457,33 +614,52 @@ export default function Dashboard() {
                 <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Response Time Trend</CardTitle>
-                    <CardDescription>Historical response times (simulated)</CardDescription>
+                    <CardDescription>
+                      {historicalData.length > 0 
+                        ? "Historical response times from recent experiments" 
+                        : "Current experiment response times"}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="h-[400px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
-                        data={[
-                          { name: 'Run 1', gpt4: 2.1, llama3370b: 0.8, gemma29b: 1.2 },
-                          { name: 'Run 2', gpt4: 2.3, llama3370b: 0.9, gemma29b: 1.1 },
-                          { name: 'Run 3', gpt4: 2.0, llama3370b: 0.7, gemma29b: 1.0 },
-                          { name: 'Run 4', gpt4: 2.2, llama3370b: 0.8, gemma29b: 1.3 },
-                          { name: 'Current', 
-                            gpt4: results['gpt-4']?.responseTime || 0, 
-                            llama3370b: results['llama-3.3-70b']?.responseTime || 0, 
-                            gemma29b: results['gemma2-9b']?.responseTime || 0 
-                          },
-                        ]}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip formatter={(value) => [`${value}s`, 'Response Time']} />
-                        <Legend />
-                        <Line type="monotone" dataKey="gpt4" stroke="#8884d8" name="GPT-4" />
-                        <Line type="monotone" dataKey="llama3370b" stroke="#82ca9d" name="Llama 3.3 70B" />
-                        <Line type="monotone" dataKey="gemma29b" stroke="#ffc658" name="Gemma 2 9B" />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    {isLoadingHistory ? (
+                      <div className="flex items-center justify-center h-full">
+                        <p className="text-muted-foreground">Loading historical data...</p>
+                      </div>
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                          data={
+                            historicalData.length > 0 
+                              ? [...historicalData, { 
+                                  name: 'Current', 
+                                  gpt4: results['gpt-4']?.responseTime || 0, 
+                                  llama3370b: results['llama-3.3-70b']?.responseTime || 0, 
+                                  gemma29b: results['gemma2-9b']?.responseTime || 0 
+                                }]
+                              : [{ 
+                                  name: 'Current Experiment', 
+                                  gpt4: results['gpt-4']?.responseTime || 0, 
+                                  llama3370b: results['llama-3.3-70b']?.responseTime || 0, 
+                                  gemma29b: results['gemma2-9b']?.responseTime || 0 
+                                }]
+                          }
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip formatter={(value) => [`${value}s`, 'Response Time']} />
+                          <Legend />
+                          <Line type="monotone" dataKey="gpt4" stroke="#8884d8" name="GPT-4" />
+                          <Line type="monotone" dataKey="llama3370b" stroke="#82ca9d" name="Llama 3.3 70B" />
+                          <Line type="monotone" dataKey="gemma29b" stroke="#ffc658" name="Gemma 2 9B" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    )}
+                    {historicalData.length === 0 && Object.keys(results).length > 0 && !isLoadingHistory && (
+                      <div className="text-center text-sm text-muted-foreground mt-4">
+                        <p>Historical data will be available as you run more experiments</p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
                 
